@@ -18,28 +18,28 @@ class model(object):
         self.n_w = H
         self.n_h = H
 
-        self.hl1W = tf.Variable(np.random.rand(3,3,3,32), name='hl1w', dtype='float32')
-        self.hl1B = tf.Variable(np.random.rand(32), name='hl1b', dtype='float32')
+        self.hl1W = tf.Variable(np.random.rand(3,3,3,self.fhl1), name='hl1w', dtype='float32')
+        self.hl1B = tf.Variable(np.random.rand(self.fhl1), name='hl1b', dtype='float32')
 
-        self.hl2W = tf.Variable(np.random.rand(3,3,32,32), name='hl2w', dtype='float32')
-        self.hl2B = tf.Variable(np.random.rand(32), name='hl2b', dtype='float32')
+        self.hl2W = tf.Variable(np.random.rand(3,3,self.fhl1,self.fhl2), name='hl2w', dtype='float32')
+        self.hl2B = tf.Variable(np.random.rand(self.fhl2), name='hl2b', dtype='float32')
 
-        self.hl3W = tf.Variable(np.random.rand(3,3,32,64), name='hl3w', dtype='float32')
-        self.hl3B = tf.Variable(np.random.rand(64), name='hl3b', dtype='float32')
+        self.hl3W = tf.Variable(np.random.rand(3,3,self.fhl2,self.fhl3), name='hl3w', dtype='float32')
+        self.hl3B = tf.Variable(np.random.rand(self.fhl3), name='hl3b', dtype='float32')
 
-        self.hl4W = tf.Variable(np.random.rand(3,3,64,64), name='hl4w', dtype='float32')
-        self.hl4B = tf.Variable(np.random.rand(64), name='hl4b', dtype='float32')
+        self.hl4W = tf.Variable(np.random.rand(3,3,self.fhl3,self.fhl4), name='hl4w', dtype='float32')
+        self.hl4B = tf.Variable(np.random.rand(self.fhl4), name='hl4b', dtype='float32')
 
-        self.hl5W = tf.Variable(np.random.rand(3,3,64,256), name='hl5w', dtype='float32')
-        self.hl5B = tf.Variable(np.random.rand(256), name='hl5b', dtype='float32')
+        self.hl5W = tf.Variable(np.random.rand(3,3,self.fhl4,self.fhl5), name='hl5w', dtype='float32')
+        self.hl5B = tf.Variable(np.random.rand(self.fhl5), name='hl5b', dtype='float32')
 
-        self.hl6W = tf.Variable(np.random.rand(3,3,256,self.last), name='hl6w', dtype='float32')
-        self.hl6B = tf.Variable(np.random.rand(self.last), name='hl6b', dtype='float32')
+        self.hl6W = tf.Variable(np.random.rand(3,3,self.fhl5,self.fhl6), name='hl6w', dtype='float32')
+        self.hl6B = tf.Variable(np.random.rand(self.fhl6), name='hl6b', dtype='float32')
 
-        self.fc1W = tf.Variable(np.random.rand(60*60*self.last,512), name='fc1W', dtype='float32')
-        self.fc1B = tf.Variable(np.random.rand(512), name='fc1B', dtype='float32')
+        self.fc1W = tf.Variable(np.random.rand(60*60*self.fhl6,self.ffc1), name='fc1W', dtype='float32')
+        self.fc1B = tf.Variable(np.random.rand(self.ffc1), name='fc1B', dtype='float32')
 
-        self.outW = tf.Variable(np.random.rand(512, n_classes), name='outW', dtype='float32')
+        self.outW = tf.Variable(np.random.rand(self.ffc1, n_classes), name='outW', dtype='float32')
         self.outB = tf.Variable(np.random.rand(n_classes), name='outB', dtype='float32')
 
         
@@ -102,7 +102,7 @@ class model(object):
             mean_x, std_x = tf.nn.moments(l6, axes = 2, keepdims=True)
             l6 = tf.nn.batch_normalization(l6, mean_x, std_x, None, None, 1e-12)
             
-            l7 = tf.reshape(l6, [-1, 60*60*self.last])
+            l7 = tf.reshape(l6, [-1, 60*60*self.fhl6])
             l7 = tf.matmul(l7, self.fc1W)
             l7 = tf.add(l7, self.fc1B)
             l7 = tf.nn.relu(l7)
