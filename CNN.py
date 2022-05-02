@@ -8,7 +8,7 @@ class model(object):
         self.fhl2 = 32
         self.fhl3 = 64
         self.fhl4 = 64
-        self.fhl5 = 256 
+        self.fhl5 = 64
         self.fhl6 = 64
 
         self.ffc1 = 512
@@ -36,7 +36,7 @@ class model(object):
         self.hl6W = tf.Variable(np.random.rand(3,3,self.fhl5,self.fhl6), name='hl6w', dtype='float32')
         self.hl6B = tf.Variable(np.random.rand(self.fhl6), name='hl6b', dtype='float32')
 
-        self.fc1W = tf.Variable(np.random.rand(60*60*self.fhl6,self.ffc1), name='fc1W', dtype='float32')
+        self.fc1W = tf.Variable(np.random.rand(27*27*self.fhl6,self.ffc1), name='fc1W', dtype='float32')
         self.fc1B = tf.Variable(np.random.rand(self.ffc1), name='fc1B', dtype='float32')
 
         self.outW = tf.Variable(np.random.rand(self.ffc1, n_classes), name='outW', dtype='float32')
@@ -68,7 +68,7 @@ class model(object):
             l2 = tf.nn.conv2d(l1,self.hl2W, strides=[1,1,1,1], padding='SAME')
             l2 = tf.add(l2, self.hl2B)
             l2 = tf.nn.relu(l2)
-            l2 = tf.nn.max_pool2d(l2, ksize=[1,2,2,1], strides=[1,1,1,1], padding='SAME')
+            l2 = tf.nn.max_pool2d(l2, ksize=[1,3,3,1], strides=[1,2,2,1], padding='VALID')
             mean_x, std_x = tf.nn.moments(l2, axes = 2, keepdims=True)
             l2 = tf.nn.batch_normalization(l2, mean_x, std_x, None, None, 1e-12)
 
@@ -102,7 +102,7 @@ class model(object):
             mean_x, std_x = tf.nn.moments(l6, axes = 2, keepdims=True)
             l6 = tf.nn.batch_normalization(l6, mean_x, std_x, None, None, 1e-12)
             
-            l7 = tf.reshape(l6, [-1, 60*60*self.fhl6])
+            l7 = tf.reshape(l6, [-1, 27*27*self.fhl6])
             l7 = tf.matmul(l7, self.fc1W)
             l7 = tf.add(l7, self.fc1B)
             l7 = tf.nn.relu(l7)

@@ -1,8 +1,10 @@
 from generate_simpsons_dataset import SimpsonsDataset
+from DataAugmentation import DataAugmentation
 import train_model
 import tensorflow as tf
 from CNN import model
-from tqdm import tqdm 
+from tqdm import tqdm
+import numpy as np 
 
 #import os
 #os.environ["CUDA_VISIBLE_DEVICES"]="1"
@@ -16,10 +18,13 @@ simpsons_dataset = SimpsonsDataset()
 
 BATCH_SIZE = 128
 SEED = 42
-EPOCHS = 30
+EPOCHS = 100
 NUM_CLASSES = 10
 
 tf.random.set_seed(SEED)
+
+
+augmentator = DataAugmentation()
 
 
 train_data, test_data = simpsons_dataset.generate_N_dataset(num_classes=NUM_CLASSES, balance=True)
@@ -61,6 +66,7 @@ def fit(model, train_data,test_data, epochs,seed, batch_size):
 
         for i in range(len(train_batch)):
             epoch_x, epoch_y = train_batch[i][0], train_batch[i][1]
+            epoch_x = np.asarray(augmentator.augment_batch(epoch_x))
             train_step(model,epoch_x,epoch_y)
 
         test_batch = test_data.batch(216)
@@ -68,7 +74,7 @@ def fit(model, train_data,test_data, epochs,seed, batch_size):
         for i in range(len(test_batch)):
             test_step(model, test_batch[i][0], test_batch[i][1])
 
-        template = 'Epoch {}, Perdida: {}, Exactitud: {}, Perdida prueba: {}, Exactitud prueba: {}'
+        template = 'Epoch {}, Perdida: {:.2f}, Exactitud: {:.2f}, Perdida prueba: {:.2f}, Exactitud prueba: {:.2f}'
         print(template.format(epoch+1,
                          train_loss.result(),
                         train_accuracy.result()*100,
