@@ -8,7 +8,7 @@ class model(object):
         self.fhl2 = 32
         self.fhl3 = 64
         self.fhl4 = 64
-        self.fhl5 = 256
+        self.fhl5 = 256 
         self.fhl6 = 64
 
         self.ffc1 = 512
