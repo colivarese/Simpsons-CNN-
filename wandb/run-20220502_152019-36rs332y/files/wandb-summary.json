@@ -1,0 +1,1 @@
+{"train_accuracy": "CategoricalAccuracy(name=train_accuracy,dtype=float32)", "train_loss": "Mean(name=train_loss,dtype=float32)", "test_accuracy": "CategoricalAccuracy(name=test_accuracy,dtype=float32)", "test_loss": "Mean(name=test_loss,dtype=float32)", "_timestamp": 1651529268, "_runtime": 6449, "_step": 349, "_wandb": {"runtime": 6447}}

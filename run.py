@@ -4,7 +4,10 @@ import train_model
 import tensorflow as tf
 from CNN import model
 from tqdm import tqdm
-import numpy as np 
+import numpy as np
+import wandb
+
+wandb.init(project="simpsons-cnn", entity="colivarese")
 
 #import os
 #os.environ["CUDA_VISIBLE_DEVICES"]="1"
@@ -18,8 +21,9 @@ simpsons_dataset = SimpsonsDataset()
 
 BATCH_SIZE = 128
 SEED = 42
-EPOCHS = 100
+EPOCHS = 350
 NUM_CLASSES = 10
+LR = 0.0002 #0.00015
 
 tf.random.set_seed(SEED)
 
@@ -29,7 +33,7 @@ augmentator = DataAugmentation()
 
 train_data, test_data = simpsons_dataset.generate_N_dataset(num_classes=NUM_CLASSES, balance=True)
 
-optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=0.00015)
+optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=LR)
 
 train_loss = tf.keras.metrics.Mean(name='train_loss')
 train_accuracy = tf.keras.metrics.CategoricalAccuracy(name='train_accuracy')
@@ -80,6 +84,9 @@ def fit(model, train_data,test_data, epochs,seed, batch_size):
                         train_accuracy.result()*100,
                         test_loss.result(),
                         test_accuracy.result()*100))
+
+        wandb.log({'train_accuracy': train_accuracy, 'train_loss': train_loss,
+                    'test_accuracy':test_accuracy, 'test_loss':test_loss})
 
         train_loss.reset_states()
         train_accuracy.reset_states()

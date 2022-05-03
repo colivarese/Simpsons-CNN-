@@ -1,0 +1,24 @@
+{
+    "os": "Windows-10-10.0.19041-SP0",
+    "python": "3.8.0",
+    "heartbeatAt": "2022-05-02T20:20:23.008839",
+    "startedAt": "2022-05-02T20:20:19.786073",
+    "docker": null,
+    "gpu": "NVIDIA GeForce RTX 2070 SUPER",
+    "gpu_count": 1,
+    "cpu_count": 12,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "c:/Users/Aciel/Documents/RNAv/Simpsons CNN/run.py",
+    "codePath": "run.py",
+    "git": {
+        "remote": "https://github.com/colivarese/Simpsons-CNN-.git",
+        "commit": "0e5dd4cab8d1e70442350960886568268a6ca617"
+    },
+    "email": "ces.oe97@gmail.com",
+    "root": "C:/Users/Aciel/Documents/RNAv/Simpsons CNN",
+    "host": "DESKTOP-JK2PUBQ",
+    "username": "Aciel",
+    "executable": "C:\\Users\\Aciel\\anaconda3\\envs\\RNA\\python.exe"
+}
