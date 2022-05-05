@@ -1,11 +1,16 @@
 from generate_simpsons_dataset import SimpsonsDataset
 from DataAugmentation import DataAugmentation
-import train_model
 import tensorflow as tf
 from CNN import model
 from tqdm import tqdm
 import numpy as np
 import wandb
+import datetime
+import os
+import matplotlib.pyplot as plt
+import pandas as pd
+import seaborn as sns
+from sklearn.metrics import confusion_matrix
 
 wandb.init(project="simpsons-cnn", entity="colivarese")
 
@@ -21,7 +26,7 @@ simpsons_dataset = SimpsonsDataset()
 
 BATCH_SIZE = 128
 SEED = 42
-EPOCHS = 350
+EPOCHS = 1000
 NUM_CLASSES = 10
 LR = 0.0002 #0.00015
 
@@ -31,7 +36,9 @@ tf.random.set_seed(SEED)
 augmentator = DataAugmentation()
 
 
-train_data, test_data = simpsons_dataset.generate_N_dataset(num_classes=NUM_CLASSES, balance=True)
+train_data, test_data, classes = simpsons_dataset.generate_N_dataset(num_classes=NUM_CLASSES, balance=True)
+
+#simpsons_dataset.check_dataloaders(test_data, classes)
 
 optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=LR)
 
@@ -62,6 +69,13 @@ def test_step(model, tdata, labels):
     test_loss(t_loss)
     test_accuracy(labels, preds)
 
+# -create log dits
+current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+train_log_dir = 'logs/gradient_tape/' + current_time + '/train'
+test_log_dir = 'logs/gradient_tape/' + current_time + '/test'
+train_summary_writer = tf.summary.create_file_writer(train_log_dir)
+test_summary_writer = tf.summary.create_file_writer(test_log_dir)
+
 def fit(model, train_data,test_data, epochs,seed, batch_size):
 
     for epoch in tqdm(range(epochs), desc='Training model'):
@@ -70,7 +84,7 @@ def fit(model, train_data,test_data, epochs,seed, batch_size):
 
         for i in range(len(train_batch)):
             epoch_x, epoch_y = train_batch[i][0], train_batch[i][1]
-            epoch_x = np.asarray(augmentator.augment_batch(epoch_x))
+            #epoch_x = np.asarray(augmentator.augment_batch(epoch_x))
             train_step(model,epoch_x,epoch_y)
 
         test_batch = test_data.batch(216)
@@ -85,8 +99,16 @@ def fit(model, train_data,test_data, epochs,seed, batch_size):
                         test_loss.result(),
                         test_accuracy.result()*100))
 
-        wandb.log({'train_accuracy': train_accuracy, 'train_loss': train_loss,
-                    'test_accuracy':test_accuracy, 'test_loss':test_loss})
+        with train_summary_writer.as_default():
+            tf.summary.scalar('loss', train_loss.result(), step=epoch)
+            tf.summary.scalar('accuracy', train_accuracy.result()*100, step=epoch)
+
+        with test_summary_writer.as_default():
+            tf.summary.scalar('loss', test_loss.result(), step=epoch)
+            tf.summary.scalar('accuracy', test_accuracy.result()*100, step=epoch)
+
+        #wandb.log({'train_accuracy': train_accuracy.result()*100, 'train_loss': train_loss.result(),
+          #          'test_accuracy':test_accuracy.result()*100, 'test_loss':test_loss.result()})
 
         train_loss.reset_states()
         train_accuracy.reset_states()
@@ -96,3 +118,37 @@ def fit(model, train_data,test_data, epochs,seed, batch_size):
 
 CNN = model(n_classes =NUM_CLASSES)
 fit(CNN, train_data=train_data, test_data=test_data, epochs=EPOCHS, seed=SEED, batch_size=BATCH_SIZE)
+
+def predict_correlation_matrix(model, data, classes):
+
+        test_batch = data.batch(216)
+        test_batch = list(test_batch.as_numpy_iterator())
+
+        true_labels = list()
+        predictions = list()
+        
+        for i in range(len(test_batch)):
+            labels = test_batch[i][1]
+            preds = model(test_batch[i][0]).numpy()
+            preds = tf.nn.softmax(preds).numpy()
+            for label, pred in zip(labels, preds):
+                true_labels.append(np.argmax(label))
+                predictions.append(np.argmax(pred))
+        
+        classes = list(classes.keys())
+        ax= plt.subplot()
+        cf = confusion_matrix(true_labels, predictions)
+        sns.heatmap(cf, annot=True, fmt='g', ax=ax, cbar=False, cmap='PiYG')
+        
+        ax.set_xlabel('Predicted labels')
+        ax.set_ylabel('True labels')
+        ax.set_title('Confusion Matrix') 
+        ax.xaxis.set_ticklabels(classes)
+        ax.yaxis.set_ticklabels(classes)
+        plt.xticks(rotation = 45)
+        plt.yticks(rotation = 45)
+
+        plt.show()
+
+predict_correlation_matrix(CNN, test_data, classes)
+ 

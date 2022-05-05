@@ -78,7 +78,7 @@ class SimpsonsDataset(object):
 
         train_data = tf.data.Dataset.from_tensor_slices((X,y_hot))
 
-        return train_data, test_data
+        return train_data, test_data, classes_with_idx
 
     def generate_test_set(self, classes, classes_with_idx):
         test_path = 'simpsons_testdataset/simpsons_testdataset'
@@ -114,7 +114,23 @@ class SimpsonsDataset(object):
 
         test_data = tf.data.Dataset.from_tensor_slices((X,y_hot))
 
+
         return test_data
+
+
+    def check_dataloaders(self, dataloader, classes):
+        dataloader = dataloader.shuffle(len(dataloader)+1).batch(100)
+        dataloader = list(dataloader.as_numpy_iterator())
+
+        images, labels = dataloader[0][0], dataloader[0][1]
+        images = images[0:9,:,:,:]
+        labels = labels[0:9]
+        for image,label  in zip(images, labels):
+            image = np.squeeze(image)
+            a = 5
+
+
+
 
 
         

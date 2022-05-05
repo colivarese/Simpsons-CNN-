@@ -1,6 +1,8 @@
 import tensorflow as tf
 import numpy as np
 
+
+
 class model(object):
     def __init__(self, n_classes = 10, H = 64):
 
@@ -8,7 +10,7 @@ class model(object):
         self.fhl2 = 32
         self.fhl3 = 64
         self.fhl4 = 64
-        self.fhl5 = 64
+        self.fhl5 = 256 #64
         self.fhl6 = 64
 
         self.ffc1 = 512
@@ -111,3 +113,5 @@ class model(object):
 
             out = tf.matmul(l7, self.outW) + self.outB
             return out
+
+    

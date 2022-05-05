@@ -1,2 +1,4 @@
 simpsons_dataset/
 simpsons_testdataset
+logs/
+wandb/
