@@ -13,6 +13,14 @@ class DataAugmentation(object):
         self.up_sat = 0.5
 
     def augment_batch(self, batch):
+        """
+        Esta función toma como entrada un batch de datos y les realiza una transformación dependiendo
+        de una probabilidad de 0.5
+        Las transformaciones que se realizan son cambios de brillo, contraste, recortes aleatorios y saturación.
+
+        Parametros:
+        batch: El conjunto de datos a transformar.
+        """
         p = [random.randint(0, 1) for _ in range(5)]
         if p[0] == 1:
             fn = lambda x: tf.image.random_brightness(x, self.brightness_delta)

@@ -15,6 +15,11 @@ config.gpu_options.allow_growth = True
 session = InteractiveSession(config=config)
 
 class SimpsonsDataset(object):
+    """
+    Esta clase tiene como objetivo generar los datasets para entrenamiento y prueba,
+    buscando el folder con los archivos y generando un dataframe con el nombre de cada clase,
+    el número de imágenes y ordenandolo de mayor a menor.
+    """
     def __init__(self):
         self.dataset_path = 'simpsons_dataset/simpsons_dataset'
 
@@ -33,6 +38,15 @@ class SimpsonsDataset(object):
 
 
     def generate_N_dataset(self, num_classes, balance=False):
+        """
+        Esta función genera los datasets de entrenamientoy prueba de N clases,
+        y en caso de querer, se puede balancear el número de imágenes de cada clase
+        para que sea el mismo
+
+        Parametros:
+        num_classes: El número de clases a tomar
+        balance: Si se desea balancear o no cada clase.
+        """
 
         total_balance = 1000
 
@@ -81,6 +95,14 @@ class SimpsonsDataset(object):
         return train_data, test_data, classes_with_idx
 
     def generate_test_set(self, classes, classes_with_idx):
+        """
+        Esta función genera el Dataset de datos de prueba, utilizando información del conjunto de 
+        datos de entrenamiento
+
+        Parametros:
+        classes: Las clases que se deben tomar para la prueba
+        classes_with_idx: El id asignado a cada clase para tener la misma etiqueta de prueba y entrenamiento.
+        """
         test_path = 'simpsons_testdataset/simpsons_testdataset'
 
         total_num_images = 0
@@ -119,6 +141,14 @@ class SimpsonsDataset(object):
 
 
     def check_dataloaders(self, dataloader, classes):
+        """
+        Esta función sirve para hacer una visualización de los datos de entrenamiento generados 
+        y confirmar que son correctos
+
+        Parametros:
+        dataloader: El conjunto de datos a probar
+        classes: No se utiliza.
+        """
         dataloader = dataloader.shuffle(len(dataloader)+1).batch(100)
         dataloader = list(dataloader.as_numpy_iterator())
 
@@ -127,7 +157,6 @@ class SimpsonsDataset(object):
         labels = labels[0:9]
         for image,label  in zip(images, labels):
             image = np.squeeze(image)
-            a = 5
 
 
 
